@@ -1,9 +1,19 @@
 from flask import Flask,render_template
 from flask_bootstrap import Bootstrap
+from flask_wtf import Form
+from wtforms import StringField,SubmitField
+from wtforms.validators import DataRequired
+
+class Nameform(Form):
+    name = StringField('What is s your name',validators = [DataRequired()])
+    submit = SubmitField('Submit')
+
+
 
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
+app.config['SECRET_KEY'] = 'tell me why'
 
 
 
@@ -16,9 +26,14 @@ bootstrap = Bootstrap(app)
 @app.route('/user/<name>')
 def user(name):
     return render_template('user.html',name=name)
-@app.route('/')
+@app.route('/',methods = ['GET','POST'])
 def index():
-    return render_template('index.html')
+    name = None
+    form = Nameform()
+    if form.validate_on_submit():
+        name = form.name.data
+        form.name.data = ''
+    return render_template('index.html',form = form , name = name)
 #错误信息
 @app.errorhandler(404)
 def page_not_found(e):
